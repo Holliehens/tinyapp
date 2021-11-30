@@ -1,5 +1,12 @@
-function generateRandomString() {
-  
+function generateRandomString(length) {
+  var result           = '';
+  var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var charactersLength = characters.length;
+  for ( var i = 0; i < 6; i++ ) {
+    result += characters.charAt(Math.floor(Math.random() * 
+charactersLength));
+ }
+ return result;
 }
 
 
@@ -40,6 +47,8 @@ app.get("/urls", (req, res) => {
 
 app.post("/urls", (req, res)=> {
   console.log(req.body);
+  const shortURL = generateRandomString();
+  console.log(shortURL);
   res.send("Ok");
 });
 
