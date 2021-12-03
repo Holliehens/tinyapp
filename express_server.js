@@ -1,21 +1,10 @@
-function generateRandomString(length) {
-  var result           = '';
-  var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  var charactersLength = characters.length;
-  for ( var i = 0; i < 6; i++ ) {
-    result += characters.charAt(Math.floor(Math.random() * 
-charactersLength));
- }
- return result;
-}
-
-
+// Requirements
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
-const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
 
+// Server Configuration || Middleware
+app.use(express.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -23,6 +12,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// Routes || Endpoints
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -46,22 +36,58 @@ app.get("/urls", (req, res) => {
 
 
 app.post("/urls", (req, res)=> {
-  console.log(req.body);
-  const newUrlDatabase = urlDatabase;
-  const randomString = generateRandomString();
-  console.log(randomString);
-  res.send("Ok");
+  const { longURL } = req.body
+  if (!longURL) {
+    return res.status(400).send("longURL not found");
+  }
+
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = { 
+    longURL:  longURL
+    // userId: userId
+  }
+  console.log(urlDatabase);
+  res.redirect(`/urls/${shortURL}`)
+  
+  
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   const { shortURL } = req.params;
-  const longURL = urlDatabase[shortURL]; 
+  const { longURL } = urlDatabase[shortURL]; 
   const templateVars = { shortURL, longURL };
   res.render("urls_show", templateVars);
 });
 
+app.get("/u/:shortURL", (req, res) => {
+  // extract the shortURL from params
+  const { shortURL } = req.params;
+
+  // search for shortURL in database
+  const urlObject = urlDatabase[shortURL];
+
+  // validate that shortURL exist in database
+  if (!urlObject) {
+    return res.status(400).send("shortURL not found");
+  }
+
+  // redirect the user to longURL property within the shortURL object
+  res.redirect(urlObject.longURL);
+});
+
+function generateRandomString(length) {
+  var result           = '';
+  var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var charactersLength = characters.length;
+  for ( var i = 0; i < 6; i++ ) {
+    result += characters.charAt(Math.floor(Math.random() * 
+charactersLength));
+ }
+ return result;
+}
 
 
+// Listener
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
