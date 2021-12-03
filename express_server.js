@@ -8,8 +8,8 @@ app.use(express.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca" },
+  "9sm5xK": { longURL: "http://www.google.com" }
 };
 
 // Routes || Endpoints
@@ -73,6 +73,22 @@ app.get("/u/:shortURL", (req, res) => {
 
   // redirect the user to longURL property within the shortURL object
   res.redirect(urlObject.longURL);
+});
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  // extract the shortURL from params
+  const { shortURL } = req.params;
+
+  // search for shortURL in database
+  const urlObject = urlDatabase[shortURL];
+
+  // validate that shortURL exist in database
+  if (!urlObject) {
+    return res.status(400).send("shortURL not found");
+  }
+  
+  delete urlDatabase[shortURL];
+  res.redirect("/urls");
 });
 
 function generateRandomString(length) {
