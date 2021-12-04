@@ -41,7 +41,7 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  const { longURL } = req.body;
+  const { longURL } = req.body; 
   if (!longURL) {
     return res.status(400).send("longURL not found");
   }
@@ -106,6 +106,7 @@ app.post("/urls/:shortURL", (req, res) => {
 
 app.post("/login", (req, res) => {
   const username = req.body.username;
+
   // cookie takes the arg of (key, value). key sets the cookie name.
   res.cookie("username", username);
 
@@ -128,6 +129,14 @@ function generateRandomString(length) {
   }
   return result;
 }
+
+  /// REGISTRATION PAGE ///
+  //  app.get("/register", (req, res) => {
+  //     //template variable
+  //     const templateReg =
+
+  //     res.render("register")
+  //  });
 
 // Listener
 app.listen(PORT, () => {
