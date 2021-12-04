@@ -131,12 +131,12 @@ function generateRandomString(length) {
 }
 
   /// REGISTRATION PAGE ///
-  //  app.get("/register", (req, res) => {
+   app.get("/register", (req, res) => {
   //     //template variable
-  //     const templateReg =
+       //const templateReg =
 
-  //     res.render("register")
-  //  });
+      res.render("register", { username: req.cookies.username });
+  });
 
 // Listener
 app.listen(PORT, () => {
