@@ -4,7 +4,7 @@
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
       </button>
-      <% if (username) {%>
+      <% if (user) {%>
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
           <a class="nav-item nav-link" href="/urls">My URLs</a>
@@ -14,13 +14,13 @@
             <button type="submit" class="btn btn-primary">Logout</button>
           </form>
           <p>
-            Welcome <%=username%>! 
+            Welcome <%=user.email%>! 
             You Are Logged In
           </p>
         </div>
         <% } else {%>
           <form   method="POST" action="/login">
-          <input type="text" name="username"/>
+          <input type="email" name="user_id"/>
           <button type="submit" class="btn btn-primary">Login</button>
         </form>
       <% } %>
