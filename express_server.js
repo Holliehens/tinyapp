@@ -105,12 +105,70 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
+  /// USERS OBJECT ///
+
+  const users = { 
+    "userRandomID": {
+      id: "userRandomID", 
+      email: "user@example.com", 
+      password: "purple-monkey-dinosaur"
+    },
+   "user2RandomID": {
+      id: "user2RandomID", 
+      email: "user2@example.com", 
+      password: "dishwasher-funk"
+    }
+  }
+  // /// CONDTIONAL FUNCTIONS /// //
+
+    const isMissingParam = (req) => {
+      if (!req.body.email || !req.body.password) {
+        return true;
+      } 
+      return false;
+    }
+
+    const findUserByEmail = (email) => {
+      for (let user_id in users) {
+          if (users[user_id].email === email) {
+            return users[user_id];
+          } 
+        }
+        return null;
+    };
+
+    const emailExists = (email) => {
+      const user = findUserByEmail(email);
+      if (user) {
+        return true;
+      }
+      return false;
+       
+    };
+
+    //////////////////////////////////
+
+        /// LOGIN ///
+
+app.get("/login", (req, res) => {
+
+    res.render("login", { user_id: req.cookies.user_id, user: ""});
+});
+
 app.post("/login", (req, res) => {
   const user_id = req.body.user_id;
 
+if (!emailExists(req.body.email)) {
+  return res.status(403).send("Email Cannot Be Found");
+};
+
+if (users.password != user_id[req.body.password]) {
+  return res.status(403).send("Error. Incorrect Password");
+}
+  
+
   // cookie takes the arg of (key, value). key sets the cookie name.
   res.cookie("user_id", user_id);
-
   res.redirect("/urls");
 });
 
@@ -137,48 +195,8 @@ function generateRandomString(length) {
       res.render("register", { user_id: req.cookies.user_id, user: ""});
   });
 
-  /// USERS OBJECT ///
 
-  const users = { 
-    "userRandomID": {
-      id: "userRandomID", 
-      email: "user@example.com", 
-      password: "purple-monkey-dinosaur"
-    },
-   "user2RandomID": {
-      id: "user2RandomID", 
-      email: "user2@example.com", 
-      password: "dishwasher-funk"
-    }
-  }
-    const isMissingParam = (req) => {
-      if (!req.body.email || !req.body.password) {
-        return true;
-      } 
-      return false;
-    }
-
-    const findUserByEmail = (email) => {
-      for (let user_id in users) {
-          if (users[user_id].email === email) {
-            return users[user_id];
-          } 
-        }
-        return null;
-    }
-
-    const emailExists = (email) => {
-      const user = findUserByEmail(email);
-      if (user) {
-        return true;
-      }
-      return false;
-       
-    };
-
-
-
-  app.post("/register", (req, res) => {
+app.post("/register", (req, res) => {
     if (isMissingParam(req)) {
       return res.status(400).send("Email & Password Are Required");
     }
@@ -191,15 +209,16 @@ function generateRandomString(length) {
       id: user_id,
       email: req.body.email,
       password: req.body.password,
-    }
+    };
     users[user_id] = user
-
-    
-    
 
     res.cookie("user_id", user_id);
     res.redirect("/urls");
   });
+
+ 
+
+  
  
 // Listener
 app.listen(PORT, () => {
