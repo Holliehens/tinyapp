@@ -157,14 +157,26 @@ function generateRandomString(length) {
       } 
       return false;
     }
-    const emailExists = (email) => {
+
+    const findUserByEmail = (email) => {
       for (let user_id in users) {
-        if (users[user_id].email === email) {
-          return true;
-        } 
+          if (users[user_id].email === email) {
+            return users[user_id];
+          } 
+        }
+        return null;
+    }
+
+    const emailExists = (email) => {
+      const user = findUserByEmail(email);
+      if (user) {
+        return true;
       }
       return false;
+       
     };
+
+
 
   app.post("/register", (req, res) => {
     if (isMissingParam(req)) {
