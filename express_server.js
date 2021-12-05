@@ -29,7 +29,7 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const user_id = req.cookies.user_id; 
-  const templateVars = { user_id };
+  const templateVars = { user_id, user: users };
   res.render("urls_new", templateVars);
 });
 
@@ -156,19 +156,17 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const user_id = req.body.user_id;
+  const user = findUserByEmail(req.body.email);
 
-if (!emailExists(req.body.email)) {
+if (!user) {
   return res.status(403).send("Email Cannot Be Found");
 };
 
-if (users.password != user_id[req.body.password]) {
+if (user.password != req.body.password) {
   return res.status(403).send("Error. Incorrect Password");
-}
-  
+};
 
-  // cookie takes the arg of (key, value). key sets the cookie name.
-  res.cookie("user_id", user_id);
+  res.cookie("user_id", user.id);
   res.redirect("/urls");
 });
 
