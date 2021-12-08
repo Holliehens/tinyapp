@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const cookieParser = require("cookie-parser");
+const bcryptjs = require('bcryptjs');
 
 // Server Configuration || Middleware
 app.use(express.urlencoded({ extended: true }));
@@ -110,8 +111,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   // validate that shortURL exist in database
   if (!urlObject) {
     return res.status(400).send("shortURL not found");
-  }
-
+  } 
+  
   delete urlDatabase[shortURL];
   res.redirect("/urls");
 });
@@ -176,15 +177,16 @@ app.get("/login", (req, res) => {
 
 app.post("/login", (req, res) => {
   const user = findUserByEmail(req.body.email);
-
+  const hashedPassword = bcryptjs.hashSync(password, 10);
+  const password = req.body.password;
 if (!user) {
   return res.status(403).send("Email Cannot Be Found");
 };
 
-if (user.password != req.body.password) {
+if (user.password != password) {
   return res.status(403).send("Error. Incorrect Password");
 };
-
+  bcryptjs.compareSync(password, hashedPassword); 
   res.cookie("user_id", user.id);
   res.redirect("/urls");
 });
@@ -229,8 +231,17 @@ app.post("/register", (req, res) => {
     };
     users[user_id] = user
 
+    
+    const password = req.body.password;
+    console.log(password);
+    const hashedPassword = bcryptjs.hashSync(password, 10);
+  
+    console.log(hashedPassword);
+
     res.cookie("user_id", user_id);
     res.redirect("/urls");
+    
+  
   });
 
  
