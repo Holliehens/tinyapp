@@ -2,12 +2,18 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
-const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
 const bcryptjs = require('bcryptjs');
 
 // Server Configuration || Middleware
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ["user_id"],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}));
 app.set("view engine", "ejs");
 
 
@@ -41,19 +47,19 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const user_id = req.cookies.user_id; 
+  const user_id = req.session.user_id; 
   // If someone is not logged in when trying to access /urls/new, redirect them to the login page.
-  if (user_id === null || user_id === undefined) {
+  if (!user_id) {
     res.redirect("/login");
     return;
   }
-  const templateVars = { user_id, user: users };
+  const templateVars = { user: users[user_id] };
   res.render("urls_new", templateVars);
 
 });
 // line urls: wtvrthe function is
 app.get("/urls", (req, res) => {
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   const variableDatabase = urlsForUser(user_id, urlDatabase);
   const templateVars = { urls: variableDatabase, user: users[user_id] };
   
@@ -69,7 +75,7 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = {
     longURL: longURL,
-    user_id: req.cookies.user_id
+    user_id: req.session.user_id
   };
   console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`);
@@ -78,7 +84,7 @@ app.post("/urls", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const { shortURL } = req.params;
   const { longURL } = urlDatabase[shortURL];
-  const user_id = req.cookies.user_id; 
+  const user_id = req.session.user_id; 
   const user = users[user_id]
   const templateVars = { shortURL, longURL, user };
 
@@ -172,27 +178,27 @@ app.post("/urls/:shortURL", (req, res) => {
 
 app.get("/login", (req, res) => {
 
-    res.render("login", { user_id: req.cookies.user_id, user: ""});
+    res.render("login", { user_id: req.session.user_id, user: ""});
 });
 
 app.post("/login", (req, res) => {
   const user = findUserByEmail(req.body.email);
-  const hashedPassword = bcryptjs.hashSync(password, 10);
   const password = req.body.password;
+ 
 if (!user) {
   return res.status(403).send("Email Cannot Be Found");
 };
 
-if (user.password != password) {
+if (!bcryptjs.compareSync(password, user.password)) {
   return res.status(403).send("Error. Incorrect Password");
 };
-  bcryptjs.compareSync(password, hashedPassword); 
-  res.cookie("user_id", user.id);
+ 
+  req.session.user_id = user.id;
   res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  res.clearCookie("session");
 
   res.redirect("/urls");
 });
@@ -211,7 +217,7 @@ function generateRandomString(length) {
   /// REGISTRATION PAGE ///
    app.get("/register", (req, res) => {
 
-      res.render("register", { user_id: req.cookies.user_id, user: ""});
+      res.render("register", { user_id: req.session.user_id, user: ""});
   });
 
 
@@ -223,22 +229,19 @@ app.post("/register", (req, res) => {
     if (emailExists(req.body.email)) {
       return res.status(400).send("Email Already Exists");
     }
+    const password = req.body.password;
+    const hashedPassword = bcryptjs.hashSync(password, 10);
     const user_id = generateRandomString();
     const user = {
       id: user_id,
       email: req.body.email,
-      password: req.body.password,
+      // changed 'password' to 'hashedPassword' SECURE
+      password: hashedPassword,
     };
-    users[user_id] = user
+    users[user_id] = user;
 
-    
-    const password = req.body.password;
-    console.log(password);
-    const hashedPassword = bcryptjs.hashSync(password, 10);
-  
-    console.log(hashedPassword);
 
-    res.cookie("user_id", user_id);
+    req.session.user_id = user.id;
     res.redirect("/urls");
     
   
