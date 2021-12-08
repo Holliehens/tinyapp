@@ -4,7 +4,7 @@
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
       </button>
-      <!-- "locals.user" will evaluate to undefined to prevent error/crash.
+      <!-- "locals.user" (locals.whatever) will evaluate to undefined to prevent error/crash.
       If just "user" it will refer to a variable and we cannot refer to a variable that is not defined -->
       <% if (locals.user) {%>
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">

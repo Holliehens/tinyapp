@@ -9,9 +9,21 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.set("view engine", "ejs");
 
+
+
 const urlDatabase = {
-  b2xVn2: { longURL: "http://www.lighthouselabs.ca" },
-  "9sm5xK": { longURL: "http://www.google.com" },
+  b2xVn2: { longURL: "http://www.lighthouselabs.ca", user_id: "user2RandomID" },
+  "9sm5xK": { longURL: "http://www.google.com", user_id: "userRandomID"  },
+};
+
+const urlsForUser = (user_id, urlDatabase) => {
+  let filteredUrls = {};
+  for (shortURL in urlDatabase) {
+   if (urlDatabase[shortURL].user_id === user_id) {
+    filteredUrls[shortURL] = urlDatabase[shortURL].longURL;
+   };
+  };
+   return filteredUrls;
 };
 
 // Routes || Endpoints
@@ -29,14 +41,21 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const user_id = req.cookies.user_id; 
+  // If someone is not logged in when trying to access /urls/new, redirect them to the login page.
+  if (user_id === null || user_id === undefined) {
+    res.redirect("/login");
+    return;
+  }
   const templateVars = { user_id, user: users };
   res.render("urls_new", templateVars);
-});
 
+});
+// line urls: wtvrthe function is
 app.get("/urls", (req, res) => {
   const user_id = req.cookies.user_id;
-  const templateVars = { urls: urlDatabase, user: users[user_id] };
-  console.log(users);
+  const variableDatabase = urlsForUser(user_id, urlDatabase);
+  const templateVars = { urls: variableDatabase, user: users[user_id] };
+  
   res.render("urls_index", templateVars);
 });
 
@@ -49,7 +68,7 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = {
     longURL: longURL,
-     //user_id: user_id
+    user_id: req.cookies.user_id
   };
   console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`);
@@ -222,3 +241,22 @@ app.post("/register", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+
+
+
+
+
+
+// Function argument demo
+
+// function calculateCostPerPerson(total, numberOfPeople=4, taxRate=0.14) {
+//   if (typeof total !== 'number') { throw new Error('Provided something weird for total') }
+//   if (typeof numberOfPeople !== 'number') { throw new Error('Provided something weird for numberOfPeople') }
+//   if (typeof taxRate !== 'number') { throw new Error('Provided something weird for taxRate') }
+//   return (total * (1+taxRate)) / numberOfPeople;
+// }
+
+// console.log(calculateCostPerPerson(80));
+// console.log(calculateCostPerPerson('tomato', 3));
+// console.log(calculateCostPerPerson(26, 2, 0.11));
