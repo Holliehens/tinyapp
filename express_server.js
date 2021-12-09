@@ -154,7 +154,7 @@ app.post("/urls/:shortURL", (req, res) => {
       return false;
     }
 
-    const findUserByEmail = (email) => {
+    const getUserByEmail = (email, users) => {
       for (let user_id in users) {
           if (users[user_id].email === email) {
             return users[user_id];
@@ -164,13 +164,23 @@ app.post("/urls/:shortURL", (req, res) => {
     };
 
     const emailExists = (email) => {
-      const user = findUserByEmail(email);
+      const user = getUserByEmail(email);
       if (user) {
         return true;
       }
       return false;
        
     };
+
+    // const getUserByEmail = (email, users) => {
+    //   for (let user_id in users) {
+    //       if (users[user_id].email === email) {
+    //         return users[user_id];
+    //       } 
+    //     }
+    //     return null;
+    // };
+    
 
     //////////////////////////////////
 
@@ -182,7 +192,7 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const user = findUserByEmail(req.body.email);
+  const user = getUserByEmail(req.body.email);
   const password = req.body.password;
  
 if (!user) {
@@ -255,6 +265,8 @@ app.post("/register", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+module.exports = { getUserByEmail };
 
 
 
