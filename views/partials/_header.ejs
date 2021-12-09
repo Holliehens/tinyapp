@@ -13,7 +13,7 @@
           <a class="nav-item nav-link" href="/urls/new">Creat New URL</a>
 
           <form method="POST" action="/logout">
-            <button type="submit" class="btn btn-primary">Logout</button>
+            <button type="submit" class="btn btn-dark">Logout</button>
           </form>
           <p>
             Welcome <%=user.email%>! 
@@ -21,7 +21,7 @@
           </p>
         </div>
         <% } else {%>
-          <a class="btn btn-info mr-2" href="/register">Register</a>
+          <a class="btn btn-dark mr-2" href="/register">Register</a>
           <a class="btn btn-danger" href="/login">Login</a>
        
       <% } %>
