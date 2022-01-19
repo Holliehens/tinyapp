@@ -182,7 +182,8 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const user = getUserByEmail(req.body.email);
+  console.log("req.body:", req.body);
+  const user = getUserByEmail(req.body.email, users);
   const password = req.body.password;
 
   if (!user) {
@@ -236,7 +237,7 @@ app.post("/register", (req, res) => {
     password: hashedPassword,
   };
   users[user_id] = user;
-
+  console.log(users);
   req.session.user_id = user.id;
   res.redirect("/urls");
 });
