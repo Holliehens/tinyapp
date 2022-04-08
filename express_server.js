@@ -87,12 +87,16 @@ app.post("/urls", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const { shortURL } = req.params;
-  const { longURL } = urlDatabase[shortURL];
-  const user_id = req.session.user_id;
-  const user = users[user_id];
+  const { longURL, user_id } = urlDatabase[shortURL];
+  const  cookieId  = req.session.user_id;
+  const user = users[cookieId];
   const templateVars = { shortURL, longURL, user };
-
+  if (user_id === cookieId) {
   res.render("urls_show", templateVars);
+  }else{
+  res.status(401)
+  res.send("Unauthorized Manuoevre")
+  }
 });
 
 app.get("/u/:shortURL", (req, res) => {
